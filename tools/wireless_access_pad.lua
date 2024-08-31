@@ -52,12 +52,16 @@ local function on_wireless_pad_secondary(itemstack, placer, pointed_thing)
   if not placer or not placer:is_player() then return end
   -- Make sure the wap doesn't open if clicking on a node with on_rightclick function
   -- unless sneak is pressed.
-  if pointed_thing.type == "node" then
-    local node = minetest.get_node(pointed_thing.under)
-    if not placer:get_player_control().sneak and node then
-      if minetest.registered_nodes[node.name] and minetest.registered_nodes[node.name].on_rightclick then
-        return minetest.registered_nodes[node.name].on_rightclick(pointed_thing.under, node, placer, itemstack) or itemstack
+  if not placer:get_player_control().sneak then
+    if pointed_thing.type == "node" then
+      local node = minetest.get_node(pointed_thing.under)
+      if node then
+        if minetest.registered_nodes[node.name] and minetest.registered_nodes[node.name].on_rightclick then
+          return minetest.registered_nodes[node.name].on_rightclick(pointed_thing.under, node, placer, itemstack) or nil
+        end
       end
+    elseif pointed_thing.type == "object" and pointed_thing.ref:get_luaentity().on_rightclick then
+        return
     end
   end
 
